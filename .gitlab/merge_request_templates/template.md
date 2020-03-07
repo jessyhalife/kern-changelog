@@ -1,5 +1,6 @@
-[Ticket]: 
+[#Ticket]: 
 
+#Ejecutables y nro de version 
 [Ejecutables]:
 
 [Descripcion]:
