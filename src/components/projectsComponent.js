@@ -1,10 +1,17 @@
 
-import React, { Component } from 'react';
+import React, { Component, useRef } from 'react';
 import project from '../controllers/projects';
 import { Button, Row, Col, Container, Card, Table, Form, Spinner, Jumbotron, Pagination } from 'react-bootstrap';
 
+const scrollToRef = (ref) => window.scrollTo(0, ref.current.offsetTop)   
 
 class Projects extends Component {
+  constructor(props){
+    super(props);
+    this.myRef = React.createRef()  
+  }
+
+
   state = {
     projects: [],
     changes: [],
@@ -17,6 +24,10 @@ class Projects extends Component {
     pages: [], 
     showDetails: true
   }
+  
+
+  executeScroll = () => scrollToRef(this.myRef)
+
   setPages(pages) {
     let list = [];
     let p = pages.split(',');
@@ -66,6 +77,7 @@ class Projects extends Component {
       project.getProjectInfo(id, url, name).then(data => {
         this.setPages(data.headers.link);
         this.setState({ changes: data.data, filtered: data.data, isLoading: false });
+        this.executeScroll();
       })
         .catch(err => { console.log(err); this.setState({ isLoading: false, hasError: true, error: err }) });
     })
@@ -75,6 +87,9 @@ class Projects extends Component {
     return (
       <div>
         <Container style={{marginLeft: "10rem"}}>
+          <h1>Proyectos</h1> 
+          <h6>Seleccione un proyecto para ver los cambios realizados por desarrollo</h6>
+          <br></br> 
           <Row>
             {this.state.projects.map(x => <Col style={{ padding: "2px" }} key={x.id}>
               
@@ -92,7 +107,7 @@ class Projects extends Component {
           </Row>
         </Container>
         <hr></hr>
-        <div><h1>
+        <div><h1 ref={this.myRef}>
           {this.state.projects.length > 0 && this.state.selectedProjectId >= 0 ? (this.state.projects.find(x => x.id === this.state.selectedProjectId).name) : undefined}</h1></div>
         {this.state.isLoading ? <Spinner style={{ margin: "40px" }} animation="grow" variant="danger" />
           : <Form>
