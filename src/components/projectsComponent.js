@@ -78,11 +78,14 @@ class Projects extends Component {
           <Row>
             {this.state.projects.map(x => <Col style={{ padding: "2px" }} key={x.id}>
               
-              <Card onClick={() => { this.loadProjectInfo(x.id, undefined, x.name) }} style={{ width: '14rem' }}>
+              <Card  style={{ width: '14rem', height: '14rem' }}>
                 <Card.Body>
                   <Card.Title>{x.name}</Card.Title>
                   <Card.Text>Ultima actualizacion:  {new Date(x.last_activity_at).toLocaleDateString()}</Card.Text>
                 </Card.Body>
+                <Card.Footer>
+                <Button style={{margin: '0.1rem'}} onClick={() => { this.loadProjectInfo(x.id, undefined, x.name) }}>Ver cambios</Button>
+                </Card.Footer>
               </Card>
             </Col>)}
 
