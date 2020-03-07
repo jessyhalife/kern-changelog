@@ -51,7 +51,7 @@ class Projects extends Component {
     this.setState({ pages: list.sort((a, b) => { return a.id - b.id }) });
   }
   filter(text) {
-    console.log(text);
+    
     if (text === '' || !text) {
       this.setState({ search: '', filtered: this.state.changes });
       return;
@@ -110,16 +110,16 @@ class Projects extends Component {
         <div><h1 ref={this.myRef}>
           {this.state.projects.length > 0 && this.state.selectedProjectId >= 0 ? (this.state.projects.find(x => x.id === this.state.selectedProjectId).name) : undefined}</h1></div>
         {this.state.isLoading ? <Spinner style={{ margin: "40px" }} animation="grow" variant="danger" />
-          : <Form>
+          : this.state.changes.length > 0 ? <Form>
             <Form.Group as={Row} controlId="searchInput">
               <Form.Label column sm={2}>
                 Buscar
          </Form.Label>
               <Col sm={3}>
-                <Form.Control value={this.state.search} onChange={(event) => this.filter(event.target.value)} type="text" placeholder="Ingrese su busqueda"></Form.Control>
+                <Form.Control value={this.state.search} onKeyPress={(event) => {console.log(event.key); if(event.key ==='Enter') event.preventDefault()}}onChange={(event) => this.filter(event.target.value)} type="text" placeholder="Ingrese su busqueda"></Form.Control>
               </Col>
             </Form.Group>
-          </Form>}
+          </Form> : undefined }
         {this.state.filtered.length > 0 ?
           <Jumbotron>
             <Table>
