@@ -1,10 +1,12 @@
+##Si hubiera mas de un ejecutable y/o SP, concatenar con |
 [#Ticket]: 
 
-#Ejecutables y nro de version 
+
 [Ejecutables]:
 
 [Descripcion]:
 
+[SP]: 
 ##Comentarios de desarrollo
 ##
 ##

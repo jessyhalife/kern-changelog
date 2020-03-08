@@ -99,7 +99,7 @@ class Projects extends Component {
                   <Card.Text>Ultima actualizacion:  {new Date(x.last_activity_at).toLocaleDateString()}</Card.Text>
                 </Card.Body>
                 <Card.Footer>
-                <Button style={{margin: '0.1rem'}} onClick={() => { this.loadProjectInfo(x.id, undefined, x.name) }}>Ver cambios</Button>
+                <Button variant="danger" style={{margin: '0.1rem'}} onClick={() => { this.loadProjectInfo(x.id, undefined, x.name) }}>Ver cambios</Button>
                 </Card.Footer>
               </Card>
             </Col>)}
