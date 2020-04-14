@@ -1,67 +1,106 @@
+import React, { Component, useRef } from "react";
+import project from "../controllers/projects";
+import {
+  Button,
+  Row,
+  Col,
+  Container,
+  Card,
+  Table,
+  Form,
+  Spinner,
+  Jumbotron,
+  Pagination,
+} from "react-bootstrap";
+import DateTimePicker from "react-datetime-picker";
 
-import React, { Component, useRef } from 'react';
-import project from '../controllers/projects';
-import { Button, Row, Col, Container, Card, Table, Form, Spinner, Jumbotron, Pagination } from 'react-bootstrap';
-
-const scrollToRef = (ref) => window.scrollTo(0, ref.current.offsetTop)   
+const scrollToRef = (ref) => window.scrollTo(0, ref.current.offsetTop);
 
 class Projects extends Component {
-  constructor(props){
+  constructor(props) {
     super(props);
-    this.myRef = React.createRef()  
+    this.myRef = React.createRef();
   }
-
 
   state = {
     projects: [],
     changes: [],
     selectedProjectId: undefined,
     filtered: [],
-    search: '',
+    search: "",
     isLoading: false,
     hasError: false,
-    error: '',
-    pages: [], 
-    showDetails: true
-  }
-  
+    error: "",
+    pages: [],
+    showDetails: true,
+    fechaDesde: new Date(),
+    fechaHasta: new Date(),
+  };
+  filtrarPorFecha = () => {
+    var filtradas = this.state.changes.filter((x) => {
+      var fecha = new Date(x.created_at);
+      return (
+        fecha >= this.state.fechaDesde && fecha <= this.state.fechaHasta
+      );
+    });
 
-  executeScroll = () => scrollToRef(this.myRef)
-   exctractInfo = async (data) => {
+    this.setState({ filtered: filtradas });
+  };
+  executeScroll = () => scrollToRef(this.myRef);
+  exctractInfo = async (data) => {
     this.setState({ changes: data, filtered: data, isLoading: false });
   };
 
   setPages(pages) {
     let list = [];
-    let p = pages.split(',');
-    p.forEach(x => {
-      let aux = x.split(';');
+    let p = pages.split(",");
+    p.forEach((x) => {
+      let aux = x.split(";");
       //first: 0
       //prev: 1
       //next: 2
       //last: 3
-      if (aux[1].split('=')[1].replace('"', '').replace('"', '') === 'first')
-        list.push({ id: 0, url: aux[0].replace('"', '').replace('<', '').replace('>', '') });
-      if (aux[1].split('=')[1].replace('"', '').replace('"', '') === 'prev')
-        list.push({ id: 1, url: aux[0].replace('"', '').replace('<', '').replace('>', '') });
-      if (aux[1].split('=')[1].replace('"', '').replace('"', '') === 'next')
-        list.push({ id: 2, url: aux[0].replace('"', '').replace('<', '').replace('>', '') });
-      if (aux[1].split('=')[1].replace('"', '').replace('"', '') === 'last')
-        list.push({ id: 3, url: aux[0].replace('"', '').replace('<', '').replace('>', '') });
-    }
-    );
+      if (aux[1].split("=")[1].replace('"', "").replace('"', "") === "first")
+        list.push({
+          id: 0,
+          url: aux[0].replace('"', "").replace("<", "").replace(">", ""),
+        });
+      if (aux[1].split("=")[1].replace('"', "").replace('"', "") === "prev")
+        list.push({
+          id: 1,
+          url: aux[0].replace('"', "").replace("<", "").replace(">", ""),
+        });
+      if (aux[1].split("=")[1].replace('"', "").replace('"', "") === "next")
+        list.push({
+          id: 2,
+          url: aux[0].replace('"', "").replace("<", "").replace(">", ""),
+        });
+      if (aux[1].split("=")[1].replace('"', "").replace('"', "") === "last")
+        list.push({
+          id: 3,
+          url: aux[0].replace('"', "").replace("<", "").replace(">", ""),
+        });
+    });
 
-    this.setState({ pages: list.sort((a, b) => { return a.id - b.id }) });
+    this.setState({
+      pages: list.sort((a, b) => {
+        return a.id - b.id;
+      }),
+    });
   }
   filter(text) {
-    
-    if (text === '' || !text) {
-      this.setState({ search: '', filtered: this.state.changes });
+    if (text === "" || !text) {
+      this.setState({ search: "", filtered: this.state.changes });
       return;
     }
     this.setState({ search: text }, () => {
       var filter = this.state.changes;
-      filter = filter.filter(x => { return x.title.includes(this.state.search) || x.description.includes(this.state.search) });
+      filter = filter.filter((x) => {
+        return (
+          x.title.includes(this.state.search) ||
+          x.description.includes(this.state.search)
+        );
+      });
       console.log(filter);
       this.setState({ filtered: filter });
     });
@@ -70,62 +109,133 @@ class Projects extends Component {
     this.getProjects(undefined);
   }
   getProjects() {
-    project.getProjects().then(data => {
-      this.setState({ projects: data.data });
-    }).catch(err => console.log(err))
+    project
+      .getProjects()
+      .then((data) => {
+        this.setState({ projects: data.data });
+      })
+      .catch((err) => console.log(err));
   }
 
   loadProjectInfo(id, url, name) {
     this.setState({ isLoading: true, selectedProjectId: id }, () => {
-      project.getProjectInfo(id, url, name).then(data => {
-        this.setPages(data.headers.link);
-        this.exctractInfo(data.data).then(() => {
-
+      project
+        .getProjectInfo(id, url, name)
+        .then((data) => {
+          console.log(data);
+          this.setPages(data.headers.link);
+          this.exctractInfo(data.data).then(() => {});
+          this.executeScroll();
+        })
+        .catch((err) => {
+          console.log(err);
+          this.setState({ isLoading: false, hasError: true, error: err });
         });
-        this.executeScroll();
-      })
-        .catch(err => { console.log(err); this.setState({ isLoading: false, hasError: true, error: err }) });
-    })
-
+    });
   }
   render() {
     return (
       <div>
-        <Container style={{marginLeft: "10rem"}}>
-          <h1>Proyectos</h1> 
-          <h6>Seleccione un proyecto para ver los cambios realizados por desarrollo</h6>
-          <br></br> 
+        <Container style={{ marginLeft: "10rem" }}>
+          <h1>Proyectos</h1>
+          <h6>
+            Seleccione un proyecto para ver los cambios realizados por
+            desarrollo
+          </h6>
+          <br></br>
           <Row>
-            {this.state.projects.map(x => <Col style={{ padding: "2px" }} key={x.id}>
-              
-              <Card  style={{ width: '14rem', height: '14rem' }}>
-                <Card.Body>
-                  <Card.Title>{x.name}</Card.Title>
-                  <Card.Text>Ultima actualizacion:  {new Date(x.last_activity_at).toLocaleDateString()}</Card.Text>
-                </Card.Body>
-                <Card.Footer>
-                <Button variant="danger" style={{margin: '0.1rem'}} onClick={() => { this.loadProjectInfo(x.id, undefined, x.name) }}>Ver cambios</Button>
-                </Card.Footer>
-              </Card>
-            </Col>)}
-
+            {this.state.projects.map((x) => (
+              <Col style={{ padding: "2px" }} key={x.id}>
+                <Card style={{ width: "14rem", height: "14rem" }}>
+                  <Card.Body>
+                    <Card.Title>{x.name}</Card.Title>
+                    <Card.Text>
+                      Ultima actualizacion:{" "}
+                      {new Date(x.last_activity_at).toLocaleDateString()}
+                    </Card.Text>
+                  </Card.Body>
+                  <Card.Footer>
+                    <Button
+                      variant="danger"
+                      style={{ margin: "0.1rem" }}
+                      onClick={() => {
+                        this.loadProjectInfo(x.id, undefined, x.name);
+                      }}
+                    >
+                      Ver cambios
+                    </Button>
+                  </Card.Footer>
+                </Card>
+              </Col>
+            ))}
           </Row>
         </Container>
         <hr></hr>
-        <div><h1 ref={this.myRef}>
-          {this.state.projects.length > 0 && this.state.selectedProjectId >= 0 ? (this.state.projects.find(x => x.id === this.state.selectedProjectId).name) : undefined}</h1></div>
-        {this.state.isLoading ? <Spinner style={{ margin: "40px" }} animation="grow" variant="danger" />
-          : this.state.changes.length > 0 ? <Form>
+        <div>
+          <h1 ref={this.myRef}>
+            {this.state.projects.length > 0 && this.state.selectedProjectId >= 0
+              ? this.state.projects.find(
+                  (x) => x.id === this.state.selectedProjectId
+                ).name
+              : undefined}
+          </h1>
+        </div>
+        {this.state.isLoading ? (
+          <Spinner
+            style={{ margin: "40px" }}
+            animation="grow"
+            variant="danger"
+          />
+        ) : this.state.changes.length > 0 ? (
+          <Form>
             <Form.Group as={Row} controlId="searchInput">
               <Form.Label column sm={2}>
                 Buscar
-         </Form.Label>
+              </Form.Label>
               <Col sm={3}>
-                <Form.Control value={this.state.search} onKeyPress={(event) => {console.log(event.key); if(event.key ==='Enter') event.preventDefault()}}onChange={(event) => this.filter(event.target.value)} type="text" placeholder="Ingrese su busqueda"></Form.Control>
+                <Form.Control
+                  value={this.state.search}
+                  onKeyPress={(event) => {
+                    console.log(event.key);
+                    if (event.key === "Enter") event.preventDefault();
+                  }}
+                  onChange={(event) => this.filter(event.target.value)}
+                  type="text"
+                  placeholder="Ingrese su busqueda"
+                ></Form.Control>
+              </Col>
+              <Col sm={2}>
+                <DateTimePicker
+                  value={this.state.fechaDesde}
+                  onChange={(date) => {
+                    this.setState({ fechaDesde: date });
+                  }}
+                />
+              </Col>
+              <Col sm={2}>
+                <DateTimePicker
+                  value={this.state.fechaHasta}
+                  onChange={(date) => {
+                    this.setState({ fechaHasta: date });
+                  }}
+                />
+              </Col>
+              <Col sm={2}>
+                <Button
+                  onClick={() => {
+                    this.filtrarPorFecha();
+                  }}
+                >
+                  Filtrar por fecha
+                </Button>
               </Col>
             </Form.Group>
-          </Form> : undefined }
-        {this.state.filtered.length > 0 ?
+            <Button variant="default" onClick={() =>this.filter()}>X Limpiar filtros</Button>
+          </Form>
+          
+        ) : undefined}
+        <br></br>
+        {this.state.filtered.length > 0 ? (
           <Container>
             <Table striped bordered hover>
               <thead>
@@ -137,11 +247,15 @@ class Projects extends Component {
                 </tr>
               </thead>
               <tbody>
-                {this.state.filtered.map(x => (
+                {this.state.filtered.map((x) => (
                   <tr key={x.id}>
                     <td>{new Date(x.created_at).toLocaleDateString()}</td>
                     <td>{x.source_branch}</td>
-                    <td><b>{x.title}</b><br></br>{x.description}</td>
+                    <td>
+                      <b>{x.title}</b>
+                      <br></br>
+                      {x.description}
+                    </td>
                     <td>{x.author.name}</td>
                   </tr>
                 ))}
@@ -164,11 +278,8 @@ class Projects extends Component {
                 })}
             </Pagination>
           : undefined} */}
-
           </Container>
-          : undefined}
-
-
+        ) : undefined}
       </div>
     );
   }
