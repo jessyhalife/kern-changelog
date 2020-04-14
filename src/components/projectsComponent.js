@@ -27,6 +27,9 @@ class Projects extends Component {
   
 
   executeScroll = () => scrollToRef(this.myRef)
+   exctractInfo = async (data) => {
+    this.setState({ changes: data, filtered: data, isLoading: false });
+  };
 
   setPages(pages) {
     let list = [];
@@ -76,7 +79,9 @@ class Projects extends Component {
     this.setState({ isLoading: true, selectedProjectId: id }, () => {
       project.getProjectInfo(id, url, name).then(data => {
         this.setPages(data.headers.link);
-        this.setState({ changes: data.data, filtered: data.data, isLoading: false });
+        this.exctractInfo(data.data).then(() => {
+
+        });
         this.executeScroll();
       })
         .catch(err => { console.log(err); this.setState({ isLoading: false, hasError: true, error: err }) });
@@ -121,8 +126,8 @@ class Projects extends Component {
             </Form.Group>
           </Form> : undefined }
         {this.state.filtered.length > 0 ?
-          <Jumbotron>
-            <Table>
+          <Container>
+            <Table striped bordered hover>
               <thead>
                 <tr>
                   <th>Fecha</th>
@@ -160,7 +165,7 @@ class Projects extends Component {
             </Pagination>
           : undefined} */}
 
-          </Jumbotron>
+          </Container>
           : undefined}
 
 

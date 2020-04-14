@@ -1,12 +1,16 @@
-##Si hubiera mas de un ejecutable y/o SP, concatenar con |
-[#Ticket]: 
+##Si hubiera mas de cambio para cada uno de los tags , dividir con |
+[Ticket]: 
 
 
-[Ejecutables]:
+[Ejecutables]: 
 
 [Descripcion]:
 
+
 [SP]: 
+
+[Configuracion]: 
+
 ##Comentarios de desarrollo
 ##
 ##
