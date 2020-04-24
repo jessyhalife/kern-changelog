@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/kern-changelog/static/css/main.5f361e03.chunk.css",
-    "main.js": "/kern-changelog/static/js/main.dc50cab9.chunk.js",
-    "main.js.map": "/kern-changelog/static/js/main.dc50cab9.chunk.js.map",
+    "main.js": "/kern-changelog/static/js/main.cced1f42.chunk.js",
+    "main.js.map": "/kern-changelog/static/js/main.cced1f42.chunk.js.map",
     "runtime-main.js": "/kern-changelog/static/js/runtime-main.7d6cc8c1.js",
     "runtime-main.js.map": "/kern-changelog/static/js/runtime-main.7d6cc8c1.js.map",
     "static/css/2.027ce674.chunk.css": "/kern-changelog/static/css/2.027ce674.chunk.css",
     "static/js/2.e47fad7e.chunk.js": "/kern-changelog/static/js/2.e47fad7e.chunk.js",
     "static/js/2.e47fad7e.chunk.js.map": "/kern-changelog/static/js/2.e47fad7e.chunk.js.map",
     "index.html": "/kern-changelog/index.html",
-    "precache-manifest.8001a6b756c557fc47412a5760298dce.js": "/kern-changelog/precache-manifest.8001a6b756c557fc47412a5760298dce.js",
+    "precache-manifest.ac9014da2c8e2b6bf9da8e9ff535c868.js": "/kern-changelog/precache-manifest.ac9014da2c8e2b6bf9da8e9ff535c868.js",
     "service-worker.js": "/kern-changelog/service-worker.js",
     "static/css/2.027ce674.chunk.css.map": "/kern-changelog/static/css/2.027ce674.chunk.css.map",
     "static/css/main.5f361e03.chunk.css.map": "/kern-changelog/static/css/main.5f361e03.chunk.css.map",
@@ -21,6 +21,6 @@
     "static/css/2.027ce674.chunk.css",
     "static/js/2.e47fad7e.chunk.js",
     "static/css/main.5f361e03.chunk.css",
-    "static/js/main.dc50cab9.chunk.js"
+    "static/js/main.cced1f42.chunk.js"
   ]
 }
