@@ -117,8 +117,8 @@ class Projects extends Component {
       var filter = this.state.changes;
       filter = filter.filter((x) => {
         return (
-          x.title.includes(this.state.search) ||
-          x.description.includes(this.state.search)
+          x.title.toUpperCase().includes(this.state.search.toUpperCase()) ||
+          x.description.toUpperCase().includes(this.state.search.toUpperCase())
         );
       });
       console.log(filter);
