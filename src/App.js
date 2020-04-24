@@ -1,8 +1,7 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
 import Projects from "./components/projectsComponent";
-import { Navbar } from 'react-bootstrap';
+import { Navbar, Container, NavbarBrand } from 'react-bootstrap';
 
 function App() {
   return (
@@ -12,7 +11,8 @@ function App() {
           <span>Control de versiones</span> 
         </Navbar.Brand>
       </Navbar>
-      <Projects />
+      <Projects />  
+      
     </div>
   );
 }

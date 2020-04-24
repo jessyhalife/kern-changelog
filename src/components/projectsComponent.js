@@ -129,6 +129,7 @@ class Projects extends Component {
     this.getProjects(undefined);
   }
   getProjects() {
+    
     project
       .getProjects()
       .then((data) => {
@@ -208,14 +209,19 @@ class Projects extends Component {
             ))}
           </Row>
         </Container>
-        <hr></hr>
         <div>
           <h1 ref={this.myRef}>
-            {this.state.projects.length > 0 && this.state.selectedProjectId >= 0
-              ? this.state.projects.find(
-                  (x) => x.id === this.state.selectedProjectId
-                ).name
-              : undefined}
+            {this.state.projects.length > 0 &&
+            this.state.selectedProjectId >= 0 ? (
+              <div>
+                <hr></hr>
+                {
+                  this.state.projects.find(
+                    (x) => x.id === this.state.selectedProjectId
+                  ).name
+                }
+              </div>
+            ) : undefined}
           </h1>
           {this.state.selBranch && this.state.selBranch !== "" ? (
             <div>
