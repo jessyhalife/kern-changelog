@@ -1,4 +1,4 @@
-import React, { Component, useRef } from "react";
+import React, { Component} from "react";
 import project from "../controllers/projects";
 import {
   Button,
@@ -9,8 +9,7 @@ import {
   Table,
   Form,
   Spinner,
-  Jumbotron,
-  Pagination,
+  Dropdown,
 } from "react-bootstrap";
 import DateTimePicker from "react-datetime-picker";
 
@@ -35,19 +34,40 @@ class Projects extends Component {
     showDetails: true,
     fechaDesde: new Date(),
     fechaHasta: new Date(),
+    branches: [],
+    selBranch: undefined,
   };
   filtrarPorFecha = () => {
     var filtradas = this.state.changes.filter((x) => {
       var fecha = new Date(x.created_at);
-      return (
-        fecha >= this.state.fechaDesde && fecha <= this.state.fechaHasta
-      );
+      return fecha >= this.state.fechaDesde && fecha <= this.state.fechaHasta;
     });
 
     this.setState({ filtered: filtradas });
   };
   executeScroll = () => scrollToRef(this.myRef);
   exctractInfo = async (data) => {
+    data = data.map((x) => {
+      var reg = /\[Ticket\]\:(\ *#*\w*)/;
+      var arr = x.description.match(reg);
+      if (arr && arr.length > 1) x.ticket = arr[1];
+      reg = /(\[Ejecutables\]:)([\ |\w|\.]*)/;
+      arr = x.description.match(reg);
+      if (arr && arr.length > 2) x.ejecutables = arr[2];
+      reg = /(\[Descripcion\]:)(.*)/;
+      arr = x.description.match(reg);
+      if (arr && arr.length > 2) x.descripcion_usr = arr[2];
+
+      reg = /(\[SP\]:)(.*)/;
+      arr = x.description.match(reg);
+      if (arr && arr.length > 2) x.stored_procedures = arr[2];
+
+      reg = /(\[Configuracion\]:)(.*)/;
+      arr = x.description.match(reg);
+      if (arr && arr.length > 2) x.configuraciones = arr[2];
+
+      return x;
+    });
     this.setState({ changes: data, filtered: data, isLoading: false });
   };
 
@@ -116,11 +136,27 @@ class Projects extends Component {
       })
       .catch((err) => console.log(err));
   }
-
-  loadProjectInfo(id, url, name) {
+  loadBranches(id, url) {
     this.setState({ isLoading: true, selectedProjectId: id }, () => {
       project
-        .getProjectInfo(id, url, name)
+        .getBranches(id, url)
+        .then((data) => {
+          this.setState({ branches: data.data.reverse(), isLoading: false });
+          console.log(data.data);
+        })
+        .catch((err) => {
+          console.log(err);
+          this.setState({ isLoading: false, hasError: true, error: err });
+        });
+    });
+  }
+  loadProjectInfo(id, url, name, branchName) {
+    if (id !== 12562383) {
+      this.setState({ branches: [], selBranch: "" });
+    }
+    this.setState({ isLoading: true, selectedProjectId: id }, () => {
+      project
+        .getProjectInfo(id, url, name, branchName)
         .then((data) => {
           console.log(data);
           this.setPages(data.headers.link);
@@ -159,7 +195,9 @@ class Projects extends Component {
                       variant="danger"
                       style={{ margin: "0.1rem" }}
                       onClick={() => {
-                        this.loadProjectInfo(x.id, undefined, x.name);
+                        if (x.id !== 12562383)
+                          this.loadProjectInfo(x.id, undefined, x.name);
+                        else this.loadBranches(x.id, undefined);
                       }}
                     >
                       Ver cambios
@@ -179,7 +217,55 @@ class Projects extends Component {
                 ).name
               : undefined}
           </h1>
+          {this.state.selBranch && this.state.selBranch !== "" ? (
+            <div>
+              <span
+                style={{
+                  fontSize: "0.2em !important",
+                  backgroundColor: "yellow",
+                }}
+              >
+                <i>{"(" + this.state.selBranch + ")"}</i>
+              </span>
+              <br></br>
+              <br></br>
+            </div>
+          ) : undefined}
+
+          {!this.state.isLoading && this.state.branches.length > 0 ? (
+            <Dropdown>
+              <Dropdown.Toggle
+                variant="secondary"
+                id="dropdown-basic"
+                size="sm"
+              >
+                Seleccione un release
+              </Dropdown.Toggle>
+              <Dropdown.Menu>
+                {this.state.branches.map((x) => {
+                  return (
+                    <Dropdown.Item
+                      key={x.commit.id}
+                      onSelect={(evt) => {
+                        this.setState({ selBranch: evt });
+                        this.loadProjectInfo(
+                          this.state.selectedProjectId,
+                          undefined,
+                          "",
+                          evt
+                        );
+                      }}
+                      eventKey={x.name}
+                    >
+                      {x.name}
+                    </Dropdown.Item>
+                  );
+                })}
+              </Dropdown.Menu>
+            </Dropdown>
+          ) : undefined}
         </div>
+        <br></br>
         {this.state.isLoading ? (
           <Spinner
             style={{ margin: "40px" }}
@@ -230,19 +316,23 @@ class Projects extends Component {
                 </Button>
               </Col>
             </Form.Group>
-            <Button variant="default" onClick={() =>this.filter()}>X Limpiar filtros</Button>
+            <Button variant="default" onClick={() => this.filter()}>
+              X Limpiar filtros
+            </Button>
           </Form>
-          
         ) : undefined}
         <br></br>
         {this.state.filtered.length > 0 ? (
-          <Container>
-            <Table striped bordered hover>
+          <div>
+            <Table size="x-sm" striped bordered hover responsive>
               <thead>
                 <tr>
                   <th>Fecha</th>
                   <th>Ticket</th>
-                  <th>Cambios</th>
+                  <th>Ejecutables</th>
+                  <th>Descripcion</th>
+                  <th>SP</th>
+                  <th>Configuraciones</th>
                   <th>Autor</th>
                 </tr>
               </thead>
@@ -250,11 +340,32 @@ class Projects extends Component {
                 {this.state.filtered.map((x) => (
                   <tr key={x.id}>
                     <td>{new Date(x.created_at).toLocaleDateString()}</td>
-                    <td>{x.source_branch}</td>
+                    <td>
+                      {x.hasOwnProperty("ticket")
+                        ? x.ticket.includes("#")
+                          ? x.ticket.trim()
+                          : "#" + x.ticket.trim()
+                        : x.source_branch}
+                    </td>
+                    <td>
+                      {x.hasOwnProperty("ejecutables") ? x.ejecutables : ""}
+                    </td>
                     <td>
                       <b>{x.title}</b>
                       <br></br>
-                      {x.description}
+                      {x.hasOwnProperty("descripcion_usr")
+                        ? x.descripcion_usr
+                        : x.description}
+                    </td>
+                    <td>
+                      {x.hasOwnProperty("stored_procedures")
+                        ? x.stored_procedures
+                        : "-"}
+                    </td>
+                    <td>
+                      {x.hasOwnProperty("configuraciones")
+                        ? x.configuraciones
+                        : "-"}
                     </td>
                     <td>{x.author.name}</td>
                   </tr>
@@ -278,7 +389,7 @@ class Projects extends Component {
                 })}
             </Pagination>
           : undefined} */}
-          </Container>
+          </div>
         ) : undefined}
       </div>
     );
